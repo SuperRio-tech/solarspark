@@ -1,83 +1,114 @@
-<!doctype html><html lang="en"><head><meta charset="utf-8"><link rel="icon" href="icon.png"><meta name="viewport" content="width=device-width,initial-scale=1"><style>body{margin:0}[hidden]{display:none!important}</style></head><body><title>SolarSpark</title>
-<meta name="claude:viewport-fit-sides" content="cover">
-<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Syne:wght@800&family=DM+Sans:opsz,wght@9..40,400;9..40,500;9..40,700&display=swap">
+<!doctype html><html lang="en"><head><meta charset="utf-8"><link rel="icon" href="icon.png"><meta name="viewport" content="width=device-width,initial-scale=1"><title>SolarSpark</title>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Unbounded:wght@500;800;900&family=Manrope:wght@400;500;700;800&display=swap">
 <style>
-/* Layout: classic search engine — centered logo + box on the home view; results view has a top bar and a single 650px result column. */
+/* Layout: a sunrise on the horizon. Home = giant wordmark over a rising sun, search bar sits on the horizon line.
+   Results = sticky glass top bar, one bold 680px column. Single dark look by choice. */
 :root{
-  --bg:#fffdf8; --box:#ffffff; --line:#e6dfd2; --hover:#f6f1e7; --text:#1d1a24; --muted:#6a6475; --title:#1a3fb0; --visited:#6b2fa8; --sun:#f29a0e; --ember:#e8562a;
-  --display:"Syne","Trebuchet MS",sans-serif; --body:"DM Sans",system-ui,sans-serif;
+  --sky:#0a0613; --sky2:#1a0b2e; --glass:rgba(26,14,44,.72); --line:rgba(255,190,120,.18); --line2:rgba(255,255,255,.08);
+  --text:#fff6ec; --muted:#bfaecf; --sun:#ffc23d; --flare:#ff8a1f; --ember:#ff3d5e; --gold:#ffd88a; --visited:#e7a6ff;
+  --display:"Unbounded","Arial Black",system-ui,sans-serif; --body:"Manrope",system-ui,sans-serif;
+  --fire:linear-gradient(100deg,var(--sun) 0%,var(--flare) 45%,var(--ember) 100%);
+  color-scheme:dark;
 }
-@media (prefers-color-scheme:dark){:root:not([data-theme="light"]){--bg:#15121c;--box:#211c2b;--line:#3a3347;--hover:#2a2436;--text:#ece8f3;--muted:#a49db2;--title:#9db8ff;--visited:#c9a4ff;--sun:#ffb238;--ember:#ff7a4d;color-scheme:dark}}
-:root[data-theme="dark"]{--bg:#15121c;--box:#211c2b;--line:#3a3347;--hover:#2a2436;--text:#ece8f3;--muted:#a49db2;--title:#9db8ff;--visited:#c9a4ff;--sun:#ffb238;--ember:#ff7a4d;color-scheme:dark}
 *{box-sizing:border-box}
-body{background:var(--bg);color:var(--text);font-family:var(--body);font-size:15px;line-height:1.55;padding-left:max(16px,env(safe-area-inset-left,0px));padding-right:max(16px,env(safe-area-inset-right,0px));padding-block:0 48px}
-:focus-visible{outline:2px solid var(--sun);outline-offset:2px}
-.logo{font-family:var(--display);font-weight:800;letter-spacing:-.03em;line-height:1;background:none;border:0;padding:0;cursor:pointer;color:var(--text)}
-.logo span{background:linear-gradient(90deg,var(--sun),var(--ember));-webkit-background-clip:text;background-clip:text;color:transparent}
+html{background:var(--sky)}
+body{margin:0;min-height:100vh;background:radial-gradient(120% 70% at 50% 108%,#ff5a2a 0%,#b0234f 18%,#4a1258 38%,var(--sky2) 58%,var(--sky) 80%) fixed;color:var(--text);font-family:var(--body);font-size:15px;line-height:1.55;padding-left:max(16px,env(safe-area-inset-left,0px));padding-right:max(16px,env(safe-area-inset-right,0px));padding-block:0 56px;overflow-x:hidden}
+body.searching{background:radial-gradient(90% 40% at 50% 0%,#2a0f3d 0%,var(--sky) 70%) fixed}
+[hidden]{display:none!important}
+:focus-visible{outline:3px solid var(--sun);outline-offset:3px}
+#sky{position:fixed;inset:0;width:100%;height:100%;pointer-events:none;z-index:0}
+#homeview,#resultsview{position:relative;z-index:1}
+
+/* wordmark */
+.logo{font-family:var(--display);font-weight:900;letter-spacing:-.045em;line-height:.86;background:none;border:0;padding:0;cursor:pointer;color:var(--text);text-transform:uppercase;display:inline-flex;flex-direction:column;align-items:center}
+.logo span{background:var(--fire);-webkit-background-clip:text;background-clip:text;color:transparent;font-style:italic;filter:drop-shadow(0 6px 30px rgba(255,120,40,.45))}
 
 /* home */
-#homeview{max-width:584px;margin:0 auto;padding-top:18vh;display:flex;flex-direction:column;align-items:center;gap:28px}
-#homeview .logo{font-size:clamp(46px,12vw,76px)}
-.btns{display:flex;gap:12px;flex-wrap:wrap;justify-content:center}
-.btn{background:var(--hover);border:1px solid transparent;border-radius:8px;padding:9px 16px;color:var(--text);font:inherit;font-size:14px;cursor:pointer}
-.btn:hover{border-color:var(--line)}
+#homeview{min-height:100vh;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:30px;padding-block:40px 120px;text-align:center}
+#homeview .logo{font-size:clamp(56px,15vw,150px)}
+.kicker{font-family:var(--display);font-weight:500;font-size:12px;letter-spacing:.42em;text-transform:uppercase;color:var(--gold);margin:-6px 0 0;padding-left:.42em}
+.sunwrap{position:relative;width:100%;max-width:660px}
+.sunwrap::before{content:"";position:absolute;left:50%;top:50%;width:min(520px,120%);aspect-ratio:1;transform:translate(-50%,-14%);border-radius:50%;background:radial-gradient(circle,rgba(255,214,120,.95) 0%,rgba(255,138,31,.75) 34%,rgba(255,61,94,.25) 56%,transparent 70%);filter:blur(4px);z-index:-1;animation:rise 1.4s cubic-bezier(.2,.8,.2,1) both}
+@keyframes rise{from{transform:translate(-50%,30%);opacity:0}to{transform:translate(-50%,-14%);opacity:1}}
+.btns{display:flex;gap:14px;flex-wrap:wrap;justify-content:center}
+.btn{font-family:var(--display);font-weight:800;font-size:13px;letter-spacing:.06em;text-transform:uppercase;border-radius:999px;padding:14px 24px;cursor:pointer;transition:transform .15s,box-shadow .15s}
+.btn:hover{transform:translateY(-2px)}
+.btn.hot{background:var(--fire);color:#2a0710;border:0;box-shadow:0 10px 30px -8px rgba(255,90,40,.7)}
+.btn.cool{background:rgba(10,6,19,.45);color:var(--text);border:2px solid rgba(255,246,236,.55);backdrop-filter:blur(6px)}
+.btn.cool:hover{border-color:var(--sun);color:var(--sun)}
+.picks{display:flex;gap:10px;flex-wrap:wrap;justify-content:center;max-width:600px}
+.pick{font:700 13px var(--body);color:var(--text);background:rgba(10,6,19,.4);border:1px solid var(--line2);border-radius:999px;padding:7px 14px;cursor:pointer;backdrop-filter:blur(6px)}
+.pick:hover{border-color:var(--sun);color:var(--sun)}
 
 /* search box */
 .sbox{position:relative;width:100%}
-.sbox form{display:flex;align-items:center;gap:10px;background:var(--box);border:1px solid var(--line);border-radius:24px;padding:0 8px 0 16px;height:48px}
-.sbox form:hover,.sbox form:focus-within{box-shadow:0 1px 8px rgba(30,20,10,.14);border-color:transparent}
-.sbox.open form{border-radius:24px 24px 0 0}
-.sbox svg{flex:none;color:var(--muted)}
-.sbox input{flex:1;min-width:0;background:none;border:0;outline:none;color:var(--text);font:inherit;font-size:16px;height:100%}
+.sbox form{position:relative;display:flex;align-items:center;gap:12px;height:64px;padding:0 8px 0 22px;border-radius:999px;background:linear-gradient(var(--sky),var(--sky)) padding-box,var(--fire) border-box;border:3px solid transparent;box-shadow:0 18px 60px -20px rgba(255,100,40,.8)}
+.sbox form:focus-within{box-shadow:0 0 0 6px rgba(255,170,60,.18),0 18px 70px -14px rgba(255,100,40,.95)}
+.sbox.open form{border-radius:32px 32px 0 0}
+.sbox svg{flex:none;color:var(--sun)}
+.sbox input{flex:1;min-width:0;height:100%;background:none;border:0;outline:none;color:var(--text);font:600 18px var(--body)}
+.sbox input::placeholder{color:var(--muted);font-weight:500}
 .sbox input::-webkit-search-cancel-button{display:none}
-.clr{background:none;border:0;color:var(--muted);font-size:22px;cursor:pointer;padding:0 6px;line-height:1}
-.sugg{position:absolute;left:0;right:0;top:48px;background:var(--box);border-radius:0 0 24px 24px;box-shadow:0 6px 10px rgba(30,20,10,.14);list-style:none;margin:0;padding:4px 0 12px;z-index:5;border-top:1px solid var(--line)}
-.sugg li{display:flex;align-items:center;gap:14px;padding:6px 18px;cursor:pointer}
-.sugg li.on,.sugg li:hover{background:var(--hover)}
-.sugg li small{color:var(--muted);margin-left:auto}
+.clr{background:none;border:0;color:var(--muted);font-size:24px;cursor:pointer;padding:0 4px;line-height:1}
+.sbtn{flex:none;width:48px;height:48px;border-radius:50%;border:0;background:var(--fire);color:#2a0710;font:900 22px var(--display);cursor:pointer;display:grid;place-items:center;transition:transform .15s}
+.sbtn:hover{transform:rotate(-12deg) scale(1.06)}
+.sugg{position:absolute;left:0;right:0;top:64px;margin:0;padding:6px 0 14px;list-style:none;background:#140a24;border:3px solid var(--flare);border-top:1px solid var(--line);border-radius:0 0 32px 32px;z-index:5;text-align:left}
+.sugg li{display:flex;align-items:center;gap:14px;padding:9px 22px;cursor:pointer;font-weight:600}
+.sugg li svg{width:16px;height:16px;color:var(--muted)}
+.sugg li.on,.sugg li:hover{background:rgba(255,138,31,.14)}
+.sugg li small{margin-left:auto;color:var(--muted);font-weight:500}
 
 /* results */
-#top{display:flex;align-items:center;gap:24px;flex-wrap:wrap;padding-block:20px 0;max-width:900px}
-#top .logo{font-size:28px}
-#top .sbox{flex:1;min-width:240px;max-width:692px}
-.tabs{display:flex;gap:22px;border-bottom:1px solid var(--line);margin-top:14px;max-width:900px;font-size:14px}
-.tabs span{padding:10px 2px;color:var(--muted)}
-.tabs span.on{color:var(--text);border-bottom:3px solid var(--sun);font-weight:500}
-#results{max-width:652px;padding-top:12px}
-.stats{color:var(--muted);font-size:13px;margin-bottom:16px}
-.overview{border:1px solid var(--line);border-radius:16px;padding:16px 18px;margin-bottom:24px;background:var(--box)}
-.overview h3{margin:0 0 8px;font-size:14px;display:flex;align-items:center;gap:8px}
-.overview h3 i{width:18px;height:18px;border-radius:50%;background:radial-gradient(circle,var(--sun) 40%,var(--ember));display:inline-block}
-.overview p{margin:0 0 8px;white-space:pre-wrap}
+#top{position:sticky;top:0;z-index:4;display:flex;align-items:center;gap:26px;flex-wrap:wrap;margin:0 calc(-1 * max(16px,env(safe-area-inset-left,0px)));padding:16px max(16px,env(safe-area-inset-left,0px));background:var(--glass);backdrop-filter:blur(14px);border-bottom:1px solid var(--line)}
+#top .logo{font-size:22px;flex-direction:row;gap:.25em;line-height:1}
+#top .sbox{flex:1;min-width:240px;max-width:680px}
+#top .sbox form{height:52px;border-width:2px}
+#top .sbtn{width:38px;height:38px;font-size:18px}
+#top .sugg{top:52px}
+.tabs{display:flex;gap:10px;margin:22px 0 6px;max-width:680px}
+.tabs span{font-family:var(--display);font-weight:800;font-size:12px;letter-spacing:.12em;text-transform:uppercase;padding:8px 16px;border-radius:999px;color:var(--muted);border:1px solid var(--line2)}
+.tabs span.on{background:var(--fire);color:#2a0710;border-color:transparent}
+#results{max-width:680px;padding-top:8px}
+.stats{color:var(--muted);font-size:13px;margin-bottom:18px;font-variant-numeric:tabular-nums}
+.overview{position:relative;padding:20px 22px;margin-bottom:28px;border-radius:24px;background:linear-gradient(#170c28,#170c28) padding-box,var(--fire) border-box;border:2px solid transparent}
+.overview h3{margin:0 0 10px;font:800 13px var(--display);letter-spacing:.1em;text-transform:uppercase;display:flex;align-items:center;gap:10px;color:var(--gold)}
+.overview h3 i{width:20px;height:20px;border-radius:50%;background:radial-gradient(circle,#fff3c4 0%,var(--sun) 40%,var(--ember) 100%);box-shadow:0 0 18px var(--flare)}
+.overview p{margin:0 0 8px;white-space:pre-wrap;font-size:16px}
 .overview .note{font-size:12px;color:var(--muted)}
 .thinking{color:var(--muted);animation:pulse 1.2s ease-in-out infinite}
-@keyframes pulse{50%{opacity:.4}}
-@media (prefers-reduced-motion:reduce){.thinking{animation:none}}
-.answer{border:1px solid var(--line);border-radius:16px;padding:16px 18px;margin-bottom:24px;font-size:30px;font-weight:500;overflow-wrap:anywhere}
-.answer small{display:block;font-size:14px;color:var(--muted);font-weight:400}
-.res{margin-bottom:28px;min-width:0}
-.src{display:flex;align-items:center;gap:10px;font-size:13px;min-width:0}
-.fav{flex:none;width:26px;height:26px;border-radius:50%;background:var(--hover);border:1px solid var(--line);display:grid;place-items:center;font-size:12px;font-weight:700;color:var(--sun)}
+@keyframes pulse{50%{opacity:.35}}
+.answer{margin-bottom:28px;padding:22px 24px;border-radius:24px;background:var(--fire);color:#2a0710;font:900 clamp(30px,8vw,48px)/1.05 var(--display);letter-spacing:-.03em;overflow-wrap:anywhere}
+.answer small{display:block;font:700 14px var(--body);letter-spacing:0;margin-bottom:6px;opacity:.75}
+.res{position:relative;margin-bottom:10px;padding:16px 18px;border-radius:20px;min-width:0;transition:background .15s}
+.res:hover{background:rgba(255,138,31,.08)}
+.src{display:flex;align-items:center;gap:12px;font-size:13px;min-width:0}
+.fav{flex:none;width:30px;height:30px;border-radius:10px;background:var(--fire);display:grid;place-items:center;font:900 13px var(--display);color:#2a0710;transform:rotate(-6deg)}
 .src div{min-width:0}
-.src b{display:block;font-weight:400;color:var(--text)}
+.src b{display:block;font-weight:700;color:var(--text)}
 .src cite{display:block;font-style:normal;color:var(--muted);overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
-.res a.t{display:inline-block;margin:4px 0 2px;color:var(--title);font-size:20px;line-height:1.3;text-decoration:none}
+.res a.t{display:inline-block;margin:8px 0 4px;color:var(--gold);font:800 21px/1.25 var(--body);letter-spacing:-.01em;text-decoration:none}
+.res a.t::after{content:"";position:absolute;inset:0;border-radius:20px}
 .res a.t:visited{color:var(--visited)}
-.res a.t:hover{text-decoration:underline}
-.res p{margin:0;color:var(--muted);font-size:14px}
-.res p em{font-style:normal;font-weight:700;color:var(--text)}
-.tag{font-size:11px;border:1px solid var(--line);border-radius:999px;padding:0 7px;color:var(--muted);margin-left:6px}
-.none{color:var(--muted)}
-.none b{color:var(--text)}
-</style>
+.res:hover a.t{text-decoration:underline;text-decoration-color:var(--flare);text-decoration-thickness:2px;text-underline-offset:4px}
+.res p{margin:0;color:var(--muted);font-size:14.5px}
+.res p em{font-style:normal;font-weight:800;color:var(--text)}
+.tag{font:800 10px var(--display);letter-spacing:.08em;text-transform:uppercase;border-radius:999px;padding:2px 8px;margin-left:8px;color:#2a0710;background:var(--gold)}
+.none{font:800 20px var(--display);color:var(--text);padding:30px 0}
+.none b{background:var(--fire);-webkit-background-clip:text;background-clip:text;color:transparent}
+@media (max-width:520px){#top{gap:12px}.sbox form{height:56px}.sugg{top:56px}}
+@media (prefers-reduced-motion:reduce){.sunwrap::before,.thinking{animation:none}.btn,.sbtn{transition:none}}
+</style></head><body>
+<canvas id="sky" aria-hidden="true"></canvas>
 
 <div id="homeview">
   <button class="logo" type="button" aria-label="SolarSpark">Solar<span>Spark</span></button>
-  <div class="sbox" id="hbox"></div>
+  <p class="kicker">Search at the speed of light</p>
+  <div class="sunwrap"><div class="sbox" id="hbox"></div></div>
   <div class="btns">
-    <button class="btn" type="button" id="hsearch">SolarSpark Search</button>
-    <button class="btn" type="button" id="lucky">I'm Feeling Lucky</button>
+    <button class="btn hot" type="button" id="hsearch">Spark Search</button>
+    <button class="btn cool" type="button" id="lucky">Feeling Lucky</button>
   </div>
+  <div class="picks" id="picks"></div>
 </div>
 
 <div id="resultsview" hidden>
@@ -208,7 +239,7 @@ Give 6 to 8 results. Use only real, long-established websites and pages you are 
 // ---------- search box (used on both views) ----------
 const ICON='<svg width="20" height="20" viewBox="0 0 24 24" aria-hidden="true"><circle cx="10.5" cy="10.5" r="6.5" fill="none" stroke="currentColor" stroke-width="2"/><path d="M15.5 15.5 21 21" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg>';
 function makeBox(el,id){
-  el.innerHTML=`<form role="search" autocomplete="off">${ICON}<input id="${id}" type="search" aria-label="Search SolarSpark" placeholder="Search SolarSpark or type a URL"><button class="clr" type="button" aria-label="Clear" hidden>×</button></form><ul class="sugg" role="listbox" hidden></ul>`;
+  el.innerHTML=`<form role="search" autocomplete="off">${ICON}<input id="${id}" type="search" aria-label="Search SolarSpark" placeholder="Search SolarSpark or type a URL"><button class="clr" type="button" aria-label="Clear" hidden>×</button><button class="sbtn" type="submit" aria-label="Search">→</button></form><ul class="sugg" role="listbox" hidden></ul>`;
   const form=el.querySelector("form"),inp=el.querySelector("input"),clr=el.querySelector(".clr"),ul=el.querySelector(".sugg");let sel=-1;
   const hide=()=>{ul.hidden=true;el.classList.remove("open");sel=-1};
   const show=()=>{const q=inp.value.trim();clr.hidden=!q;if(!q)return hide();
@@ -269,5 +300,14 @@ $("lucky").onclick=()=>search(hInput.value,true);
 $("home").onclick=home;
 document.addEventListener("keydown",e=>{if(e.key==="/"&&!/INPUT|TEXTAREA/.test(document.activeElement.tagName)){e.preventDefault();($("homeview").hidden?tInput:hInput).focus()}});
 {const q0=new URLSearchParams(location.search).get("q");if(q0)search(q0);else hInput.focus()}
+
+// quick picks
+{const P=["youtube","learn spanish","free books","space weather","music","(12+8)*3"];const el=document.getElementById("picks");el.innerHTML=P.map(p=>`<button class="pick" type="button">${p}</button>`).join("");el.querySelectorAll("button").forEach(b=>b.onclick=()=>search(b.textContent))}
+// starfield
+(function(){const c=document.getElementById("sky"),x=c.getContext("2d");let W,H,stars=[];
+  const still=matchMedia("(prefers-reduced-motion: reduce)").matches;
+  function size(){W=c.width=innerWidth*devicePixelRatio;H=c.height=innerHeight*devicePixelRatio;stars=Array.from({length:Math.round(W*H/9000)},()=>({x:Math.random()*W,y:Math.random()*H*.75,r:(Math.random()*1.3+.3)*devicePixelRatio,p:Math.random()*6.28,s:.4+Math.random()*1.6}))}
+  function draw(t){x.clearRect(0,0,W,H);for(const s of stars){const a=.35+.65*Math.abs(Math.sin(s.p+t*.0006*s.s));x.globalAlpha=a*(1-s.y/(H*.8));x.fillStyle="#fff6ec";x.beginPath();x.arc(s.x,s.y,s.r,0,6.28);x.fill()}x.globalAlpha=1;if(!still)requestAnimationFrame(draw)}
+  size();addEventListener("resize",size);requestAnimationFrame(draw)})();
 </script>
 </body></html>
