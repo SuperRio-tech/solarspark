@@ -119,8 +119,8 @@ body.searching{background:radial-gradient(90% 40% at 50% 0%,var(--h4) 0%,var(--s
 .x{width:38px;height:38px;border-radius:50%;border:1px solid var(--line2);background:none;color:var(--text);font-size:22px;cursor:pointer}
 .x:hover{border-color:var(--sun)}
 .krow{display:grid;grid-template-columns:52px 1fr 1.4fr 34px;gap:8px;margin-bottom:8px}
-.krow input,.panel input.txt{min-width:0;height:40px;border-radius:12px;border:1px solid var(--line2);background:#0a0613;color:var(--text);font:600 14px var(--body);padding:0 12px}
-.krow input:focus,.panel input.txt:focus{outline:none;border-color:var(--sun)}
+.krow input,.panel input.txt,.savelink .txt{min-width:0;height:40px;border-radius:12px;border:1px solid var(--line2);background:#0a0613;color:var(--text);font:600 14px var(--body);padding:0 12px}
+.krow input:focus,.panel input.txt:focus,.savelink .txt:focus{outline:none;border-color:var(--sun)}
 .krow input.k{text-align:center;font:900 16px var(--display);text-transform:uppercase;color:var(--sun);padding:0}
 .krow .rm{border:0;background:none;color:var(--muted);font-size:20px;cursor:pointer;border-radius:10px}
 .krow .rm:hover{color:var(--ember);background:rgba(255,61,94,.1)}
@@ -137,6 +137,7 @@ body.searching{background:radial-gradient(90% 40% at 50% 0%,var(--h4) 0%,var(--s
 .tog input::after{content:"";position:absolute;top:3px;left:3px;width:22px;height:22px;border-radius:50%;background:#fff;transition:transform .2s}
 .tog input:checked{background:var(--fire)}
 .tog input:checked::after{transform:translateX(20px)}
+.savelink{display:flex;gap:10px;flex-wrap:wrap;margin-top:12px}.savelink .txt{flex:1 1 220px}.savelink .btn{padding:10px 20px}
 .panel footer{display:flex;justify-content:space-between;align-items:center;gap:12px;margin-top:22px;flex-wrap:wrap}
 .reset{border:0;background:none;color:var(--muted);font:600 13px var(--body);cursor:pointer;text-decoration:underline}
 .saved{color:var(--gold);font-size:13px}
@@ -167,10 +168,10 @@ body.searching{background:radial-gradient(90% 40% at 50% 0%,var(--h4) 0%,var(--s
 <div id="settings" hidden role="dialog" aria-modal="true" aria-labelledby="settitle">
   <div class="panel">
     <header><h2 id="settitle">Settings</h2><button class="x" id="setclose" type="button" aria-label="Close settings">×</button></header>
-    <h3>Quick keys</h3>
-    <p class="help">Press a key anywhere on SolarSpark to jump straight to a site. While you're typing in the search bar, hold Alt and press the key.</p>
+    <h3>My sites &amp; quick keys</h3>
+    <p class="help">Type a site's name in the search bar to go straight there, like Skyward or your school portal. Add a key to jump there with one key press; while typing in the search bar, hold Alt and press the key. The key is optional.</p>
     <div id="krows"></div>
-    <button class="addk" id="addk" type="button">+ Add a quick key</button>
+    <button class="addk" id="addk" type="button">+ Add a site</button>
     <h3>Colors</h3>
     <div class="pals" id="pals"></div>
     <h3>Options</h3>
@@ -250,7 +251,37 @@ const INDEX = [
 ["Speedtest","https://www.speedtest.net","Tools","internet speed test wifi","Test your internet connection speed."],
 ["Claude","https://claude.ai","Tools","ai assistant chat write help","An AI assistant for writing, analysis and questions."],
 ["Time and Date","https://www.timeanddate.com","Tools","time zones calendar clock countdown holidays","World clocks, calendars and time zone converters."],
-["Notion","https://www.notion.so","Tools","notes docs tasks wiki workspace","Notes, docs and tasks in one workspace."]
+["Notion","https://www.notion.so","Tools","notes docs tasks wiki workspace","Notes, docs and tasks in one workspace."],
+["Google Classroom","https://classroom.google.com","School","classroom google class assignments homework teacher stream classwork","Your classes, assignments, grades and announcements from teachers."],
+["Google Drive","https://drive.google.com","School","drive google files folders storage","All your Google Docs, Slides, Sheets and files."],
+["Google Docs","https://docs.google.com/document","School","docs google document write essay","Write and edit documents."],
+["Google Slides","https://docs.google.com/presentation","School","slides google presentation","Make and edit presentations."],
+["Google Sheets","https://docs.google.com/spreadsheets","School","sheets google spreadsheet","Make and edit spreadsheets."],
+["Google Calendar","https://calendar.google.com","School","calendar google schedule events","Your schedule and events."],
+["Clever","https://clever.com/login","School","clever login school apps portal","One login for your school's apps."],
+["Canvas","https://canvas.instructure.com/login","School","canvas lms courses assignments grades","Courses, assignments and grades in Canvas."],
+["Schoology","https://app.schoology.com/login","School","schoology courses assignments grades","Courses, assignments and grades in Schoology."],
+["PowerSchool","https://www.powerschool.com/sign-in/","School","powerschool grades parent student portal","Sign in to PowerSchool for grades and attendance."],
+["Microsoft 365","https://www.office.com","School","office word excel powerpoint teams microsoft 365 outlook","Word, Excel, PowerPoint, Teams and OneDrive."],
+["Microsoft Teams","https://teams.microsoft.com","School","teams microsoft class meetings chat","Class meetings and chat."],
+["Quizlet","https://quizlet.com","School","quizlet flashcards study vocabulary","Flashcards and study games."],
+["Kahoot!","https://kahoot.it","School","kahoot game pin quiz join","Join a Kahoot! game with a PIN."],
+["Blooket","https://play.blooket.com/play","School","blooket game join code quiz","Join a Blooket game."],
+["Gimkit","https://www.gimkit.com/join","School","gimkit game join code quiz","Join a Gimkit game."],
+["Quizizz (Wayground)","https://wayground.com/join","School","quizizz wayground quiz join code","Join a quiz with a code."],
+["IXL","https://www.ixl.com/signin","School","ixl math practice skills","Practice math, English and more."],
+["Desmos","https://www.desmos.com/calculator","School","desmos graphing calculator math graph","Free graphing calculator."],
+["Edpuzzle","https://edpuzzle.com","School","edpuzzle video lessons","Video lessons from your teacher."],
+["Nearpod","https://nearpod.com/student","School","nearpod lesson join code","Join a Nearpod lesson."],
+["Formative","https://app.formative.com/join","School","formative join code assignment","Join a Formative assignment."],
+["Zearn","https://www.zearn.org","School","zearn math lessons","Math lessons and practice."],
+["Prodigy","https://www.prodigygame.com","School","prodigy math game","Math game for practice."],
+["Newsela","https://newsela.com","School","newsela reading articles","Reading articles at your level."],
+["CommonLit","https://www.commonlit.org","School","commonlit reading lessons","Reading lessons and assignments."],
+["Typing.com","https://www.typing.com","School","typing keyboard practice","Learn and practice typing."],
+["BrainPOP","https://www.brainpop.com","School","brainpop videos lessons","Animated lessons on school subjects."],
+["Seesaw","https://app.seesaw.me","School","seesaw class journal","Class activities and journal."],
+["Zoom","https://zoom.us/join","School","zoom meeting join","Join a Zoom meeting."]
 ];
 const $=id=>document.getElementById(id);
 const esc=s=>String(s??"").replace(/[&<>"]/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;"}[c]));
@@ -272,7 +303,7 @@ function address(q){
   if(/^([a-z0-9-]+\.)+[a-z]{2,}(:\d+)?(\/\S*)?$/i.test(q))return "https://"+q;
   return null;
 }
-function siteByName(q){const l=q.toLowerCase().replace(/[^a-z0-9]/g,"");return SITES.find(s=>s.title.toLowerCase().replace(/[^a-z0-9]/g,"")===l||host(s.url).split(".")[0]===l)}
+function siteByName(q){const l=q.toLowerCase().replace(/[^a-z0-9]/g,"");const mine=(typeof SET!=="undefined"?SET.keys:[]).find(k=>k.url&&k.name&&k.name.toLowerCase().replace(/[^a-z0-9]/g,"")===l);if(mine)return{title:mine.name,url:normUrl(mine.url),desc:"One of your saved sites."};return SITES.find(s=>s.title.toLowerCase().replace(/[^a-z0-9]/g,"")===l||host(s.url).split(".")[0]===l)}
 function calc(q){
   const s=q.replace(/\s+/g,"").replace(/[x×]/g,"*").replace(/÷/g,"/").replace(/=$/,"");
   if(!/^[\d.+\-*/()^]+$/.test(s)||!/\d[+\-*/^]/.test(s))return null;
@@ -353,6 +384,7 @@ async function search(q,lucky=false){
     {title:`${q} – Images on Unsplash`,url:`https://unsplash.com/s/photos/${enc}`,desc:`Free photos of "${q}".`},
     {title:`${q} – Amazon`,url:`https://www.amazon.com/s?k=${enc}`,desc:`Shop for "${q}".`},
   ];
+  const needsLink=/^(skyward|family access|skyward family access|skyward login)$/i.test(q)&&!named;
   const greet=/^(hi+|hello+|hey+|hiya|yo|sup|howdy|hola|good (morning|afternoon|evening)|what'?s up)[!. ]*$/i.test(q);
   const draw=(ov,ai)=>{
     const all=[...(jump?[{title:named&&!addr?named.title:bare(jump),url:jump,desc:opened?"Opened in a new tab.":addr?"Go to this address.":named.desc}]:[]),...loc.filter(s=>s.url!==jump),...(ai||[]).filter(r=>r&&/^https?:\/\//.test(r.url)&&r.url!==jump&&!loc.some(s=>host(s.url)===host(r.url)))];
@@ -360,9 +392,11 @@ async function search(q,lucky=false){
     all.push(...extra);
     el.innerHTML=`<div class="stats">About ${all.length} results (${((performance.now()-t0)/1000).toFixed(2)} seconds)</div>`+
       (ans!==null?`<div class="answer"><small>${esc(q)} =</small>${ans.toLocaleString()}</div>`:"")+
+      (needsLink?`<div class="overview"><h3><i></i>Set up your school's Skyward</h3><p>Every school district has its own Skyward link. Open Skyward the way you normally do, copy the address from the address bar, and paste it here. After that, typing <b>skyward</b> takes you straight there.</p><form id="savelink" class="savelink"><input class="txt" id="savelinkurl" placeholder="Paste your Skyward link" aria-label="Your Skyward link" required><button class="btn hot" type="submit">Save</button></form></div>`:"")+
       (greet?`<div class="answer"><small>SolarSpark says</small>Hey there! What do you want to find today?</div>`:"")+
       (ov||"")+all.map(r=>resHtml([r],!!ai&&ai.includes(r))).join("")+
       "";
+    const sl=el.querySelector("#savelink");if(sl)sl.onsubmit=e=>{e.preventDefault();const u=normUrl($("savelinkurl").value);if(!/^https?:\/\/[^\s.]+\.[^\s]+/.test(u))return;SET.keys.push({k:"",name:"Skyward",url:u});saveSet();toast("Saved! Taking you to Skyward…");setTimeout(()=>{if(!openUrl(u))location.href=u},500)};
     if(jump&&!opened&&(addr||lucky)){const a=el.querySelector(".res a.t");a&&a.focus()}
   };
   if(addr||ans!==null){draw("");return}
