@@ -1,0 +1,273 @@
+<!doctype html><html lang="en"><head><meta charset="utf-8"><link rel="icon" href="icon.png"><meta name="viewport" content="width=device-width,initial-scale=1"><style>body{margin:0}[hidden]{display:none!important}</style></head><body><title>SolarSpark</title>
+<meta name="claude:viewport-fit-sides" content="cover">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Syne:wght@800&family=DM+Sans:opsz,wght@9..40,400;9..40,500;9..40,700&display=swap">
+<style>
+/* Layout: classic search engine — centered logo + box on the home view; results view has a top bar and a single 650px result column. */
+:root{
+  --bg:#fffdf8; --box:#ffffff; --line:#e6dfd2; --hover:#f6f1e7; --text:#1d1a24; --muted:#6a6475; --title:#1a3fb0; --visited:#6b2fa8; --sun:#f29a0e; --ember:#e8562a;
+  --display:"Syne","Trebuchet MS",sans-serif; --body:"DM Sans",system-ui,sans-serif;
+}
+@media (prefers-color-scheme:dark){:root:not([data-theme="light"]){--bg:#15121c;--box:#211c2b;--line:#3a3347;--hover:#2a2436;--text:#ece8f3;--muted:#a49db2;--title:#9db8ff;--visited:#c9a4ff;--sun:#ffb238;--ember:#ff7a4d;color-scheme:dark}}
+:root[data-theme="dark"]{--bg:#15121c;--box:#211c2b;--line:#3a3347;--hover:#2a2436;--text:#ece8f3;--muted:#a49db2;--title:#9db8ff;--visited:#c9a4ff;--sun:#ffb238;--ember:#ff7a4d;color-scheme:dark}
+*{box-sizing:border-box}
+body{background:var(--bg);color:var(--text);font-family:var(--body);font-size:15px;line-height:1.55;padding-left:max(16px,env(safe-area-inset-left,0px));padding-right:max(16px,env(safe-area-inset-right,0px));padding-block:0 48px}
+:focus-visible{outline:2px solid var(--sun);outline-offset:2px}
+.logo{font-family:var(--display);font-weight:800;letter-spacing:-.03em;line-height:1;background:none;border:0;padding:0;cursor:pointer;color:var(--text)}
+.logo span{background:linear-gradient(90deg,var(--sun),var(--ember));-webkit-background-clip:text;background-clip:text;color:transparent}
+
+/* home */
+#homeview{max-width:584px;margin:0 auto;padding-top:18vh;display:flex;flex-direction:column;align-items:center;gap:28px}
+#homeview .logo{font-size:clamp(46px,12vw,76px)}
+.btns{display:flex;gap:12px;flex-wrap:wrap;justify-content:center}
+.btn{background:var(--hover);border:1px solid transparent;border-radius:8px;padding:9px 16px;color:var(--text);font:inherit;font-size:14px;cursor:pointer}
+.btn:hover{border-color:var(--line)}
+
+/* search box */
+.sbox{position:relative;width:100%}
+.sbox form{display:flex;align-items:center;gap:10px;background:var(--box);border:1px solid var(--line);border-radius:24px;padding:0 8px 0 16px;height:48px}
+.sbox form:hover,.sbox form:focus-within{box-shadow:0 1px 8px rgba(30,20,10,.14);border-color:transparent}
+.sbox.open form{border-radius:24px 24px 0 0}
+.sbox svg{flex:none;color:var(--muted)}
+.sbox input{flex:1;min-width:0;background:none;border:0;outline:none;color:var(--text);font:inherit;font-size:16px;height:100%}
+.sbox input::-webkit-search-cancel-button{display:none}
+.clr{background:none;border:0;color:var(--muted);font-size:22px;cursor:pointer;padding:0 6px;line-height:1}
+.sugg{position:absolute;left:0;right:0;top:48px;background:var(--box);border-radius:0 0 24px 24px;box-shadow:0 6px 10px rgba(30,20,10,.14);list-style:none;margin:0;padding:4px 0 12px;z-index:5;border-top:1px solid var(--line)}
+.sugg li{display:flex;align-items:center;gap:14px;padding:6px 18px;cursor:pointer}
+.sugg li.on,.sugg li:hover{background:var(--hover)}
+.sugg li small{color:var(--muted);margin-left:auto}
+
+/* results */
+#top{display:flex;align-items:center;gap:24px;flex-wrap:wrap;padding-block:20px 0;max-width:900px}
+#top .logo{font-size:28px}
+#top .sbox{flex:1;min-width:240px;max-width:692px}
+.tabs{display:flex;gap:22px;border-bottom:1px solid var(--line);margin-top:14px;max-width:900px;font-size:14px}
+.tabs span{padding:10px 2px;color:var(--muted)}
+.tabs span.on{color:var(--text);border-bottom:3px solid var(--sun);font-weight:500}
+#results{max-width:652px;padding-top:12px}
+.stats{color:var(--muted);font-size:13px;margin-bottom:16px}
+.overview{border:1px solid var(--line);border-radius:16px;padding:16px 18px;margin-bottom:24px;background:var(--box)}
+.overview h3{margin:0 0 8px;font-size:14px;display:flex;align-items:center;gap:8px}
+.overview h3 i{width:18px;height:18px;border-radius:50%;background:radial-gradient(circle,var(--sun) 40%,var(--ember));display:inline-block}
+.overview p{margin:0 0 8px;white-space:pre-wrap}
+.overview .note{font-size:12px;color:var(--muted)}
+.thinking{color:var(--muted);animation:pulse 1.2s ease-in-out infinite}
+@keyframes pulse{50%{opacity:.4}}
+@media (prefers-reduced-motion:reduce){.thinking{animation:none}}
+.answer{border:1px solid var(--line);border-radius:16px;padding:16px 18px;margin-bottom:24px;font-size:30px;font-weight:500;overflow-wrap:anywhere}
+.answer small{display:block;font-size:14px;color:var(--muted);font-weight:400}
+.res{margin-bottom:28px;min-width:0}
+.src{display:flex;align-items:center;gap:10px;font-size:13px;min-width:0}
+.fav{flex:none;width:26px;height:26px;border-radius:50%;background:var(--hover);border:1px solid var(--line);display:grid;place-items:center;font-size:12px;font-weight:700;color:var(--sun)}
+.src div{min-width:0}
+.src b{display:block;font-weight:400;color:var(--text)}
+.src cite{display:block;font-style:normal;color:var(--muted);overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.res a.t{display:inline-block;margin:4px 0 2px;color:var(--title);font-size:20px;line-height:1.3;text-decoration:none}
+.res a.t:visited{color:var(--visited)}
+.res a.t:hover{text-decoration:underline}
+.res p{margin:0;color:var(--muted);font-size:14px}
+.res p em{font-style:normal;font-weight:700;color:var(--text)}
+.tag{font-size:11px;border:1px solid var(--line);border-radius:999px;padding:0 7px;color:var(--muted);margin-left:6px}
+.none{color:var(--muted)}
+.none b{color:var(--text)}
+</style>
+
+<div id="homeview">
+  <button class="logo" type="button" aria-label="SolarSpark">Solar<span>Spark</span></button>
+  <div class="sbox" id="hbox"></div>
+  <div class="btns">
+    <button class="btn" type="button" id="hsearch">SolarSpark Search</button>
+    <button class="btn" type="button" id="lucky">I'm Feeling Lucky</button>
+  </div>
+</div>
+
+<div id="resultsview" hidden>
+  <div id="top"><button class="logo" type="button" id="home" aria-label="SolarSpark home">Solar<span>Spark</span></button><div class="sbox" id="tbox"></div></div>
+  <nav class="tabs" aria-label="Result type"><span class="on">All</span></nav>
+  <section id="results" aria-live="polite"></section>
+</div>
+
+<script>
+const INDEX = [
+["Wikipedia","https://www.wikipedia.org","Learn","encyclopedia wiki facts history science people places","The free encyclopedia with millions of articles on almost every subject, written by volunteers."],
+["Khan Academy","https://www.khanacademy.org","Learn","math lessons school homework algebra calculus science free courses","Free lessons and practice in math, science, history and test prep."],
+["Wolfram Alpha","https://www.wolframalpha.com","Learn","math calculator compute equations science data","A computational knowledge engine that solves equations and answers data questions."],
+["Merriam-Webster","https://www.merriam-webster.com","Learn","dictionary define definition word meaning spelling thesaurus","Dictionary definitions, pronunciation and word of the day."],
+["Duolingo","https://www.duolingo.com","Learn","language learn spanish french japanese german lessons","Bite-size lessons to learn a new language for free."],
+["Coursera","https://www.coursera.org","Learn","courses online university certificate degree","Online courses and certificates from universities and companies."],
+["NASA","https://www.nasa.gov","Learn","space sun solar planets moon mars rockets astronomy","News, images and missions from NASA's exploration of space and the solar system."],
+["Space Weather Prediction Center","https://www.swpc.noaa.gov","Learn","sun solar flare aurora storm space weather","Forecasts of solar flares, geomagnetic storms and aurora activity."],
+["Project Gutenberg","https://www.gutenberg.org","Learn","books free ebooks read classic literature","Over 70,000 free ebooks of classic literature."],
+["Library of Congress","https://www.loc.gov","Learn","history archive books maps photos research","Digital collections, historic newspapers and research guides."],
+["Reuters","https://www.reuters.com","News","news world business breaking headlines","International breaking news covering business, markets and world events."],
+["AP News","https://apnews.com","News","news headlines breaking us world politics","Breaking news from the Associated Press."],
+["BBC News","https://www.bbc.com/news","News","news world uk headlines","World news, analysis and video from the BBC."],
+["NPR","https://www.npr.org","News","news radio podcasts politics culture","News, stories and podcasts from National Public Radio."],
+["ESPN","https://www.espn.com","News","sports scores nfl nba mlb football basketball baseball","Live scores, highlights and news across every major sport."],
+["The Verge","https://www.theverge.com","News","tech technology gadgets reviews phones","Technology news, product reviews and culture."],
+["Hacker News","https://news.ycombinator.com","News","tech startups programming links discussion","Links and discussion on computing and startups."],
+["National Weather Service","https://www.weather.gov","News","weather forecast rain storm temperature radar","Official US forecasts, radar and severe weather alerts."],
+["Weather Underground","https://www.wunderground.com","News","weather forecast local hourly radar","Hyperlocal forecasts from personal weather stations."],
+["YouTube","https://www.youtube.com","Media","videos watch music tutorials channels stream","Watch and share videos, music and tutorials."],
+["Spotify","https://open.spotify.com","Media","music songs playlists podcasts listen stream","Stream music and podcasts."],
+["Twitch","https://www.twitch.tv","Media","live stream gaming games watch","Live streams of games, music and creative work."],
+["Netflix","https://www.netflix.com","Media","movies tv shows series stream watch","Stream movies and TV series."],
+["IMDb","https://www.imdb.com","Media","movies tv actors ratings reviews film","Ratings, cast and trivia for movies and TV."],
+["Unsplash","https://unsplash.com","Media","photos images free pictures wallpaper","Free high-resolution photos."],
+["Pinterest","https://www.pinterest.com","Media","ideas recipes decor diy inspiration images","Visual ideas for recipes, home, style and projects."],
+["Steam","https://store.steampowered.com","Media","games gaming pc buy store","The largest store for PC games."],
+["Reddit","https://www.reddit.com","Social","forums community discussion questions threads","Communities and discussion on every topic."],
+["Instagram","https://www.instagram.com","Social","photos social friends stories reels","Share photos and short videos with friends."],
+["TikTok","https://www.tiktok.com","Social","short videos trends social","Short-form videos and trends."],
+["LinkedIn","https://www.linkedin.com","Social","jobs career network resume professional","Professional networking and job listings."],
+["Discord","https://discord.com","Social","chat voice community gaming servers","Voice, video and text chat for communities."],
+["X","https://x.com","Social","twitter posts news social","Short posts and real-time conversation."],
+["Facebook","https://www.facebook.com","Social","friends family social groups events","Connect with friends, groups and events."],
+["Amazon","https://www.amazon.com","Shop","shopping buy store online deals electronics books","Online shopping for nearly everything."],
+["eBay","https://www.ebay.com","Shop","auction buy sell used shopping","Buy and sell new and used items."],
+["Target","https://www.target.com","Shop","shopping store groceries home clothes","Shop home goods, groceries and clothing."],
+["Walmart","https://www.walmart.com","Shop","shopping groceries store deals","Everyday low prices on groceries and more."],
+["Etsy","https://www.etsy.com","Shop","handmade crafts gifts vintage shopping","Handmade and vintage goods from independent sellers."],
+["Best Buy","https://www.bestbuy.com","Shop","electronics tv laptop phone gaming shopping","Electronics, appliances and tech."],
+["Allrecipes","https://www.allrecipes.com","Life","recipes cooking food dinner baking","Home cooks' recipes with ratings and reviews."],
+["Serious Eats","https://www.seriouseats.com","Life","recipes cooking food techniques","Tested recipes and kitchen science."],
+["Yelp","https://www.yelp.com","Life","restaurants food reviews near me local business","Reviews of local restaurants and businesses."],
+["OpenStreetMap","https://www.openstreetmap.org","Life","maps directions places navigation","A free, editable map of the world."],
+["Mayo Clinic","https://www.mayoclinic.org","Life","health symptoms medical disease conditions","Trusted information on symptoms, diseases and treatments."],
+["MedlinePlus","https://medlineplus.gov","Life","health medicine drugs medical","Health information from the US National Library of Medicine."],
+["Indeed","https://www.indeed.com","Life","jobs hiring career work search","Search millions of job listings."],
+["Zillow","https://www.zillow.com","Life","homes houses rent buy real estate","Homes for sale and rent."],
+["Kayak","https://www.kayak.com","Life","flights travel hotels cars trip","Compare flights, hotels and rental cars."],
+["Airbnb","https://www.airbnb.com","Life","travel stays rentals vacation","Vacation rentals and experiences."],
+["GitHub","https://github.com","Code","code git repositories programming open source","Host and review code, and collaborate on software."],
+["Stack Overflow","https://stackoverflow.com","Code","programming questions answers errors code help","Questions and answers for programmers."],
+["MDN Web Docs","https://developer.mozilla.org","Code","html css javascript web docs reference","Documentation for web technologies."],
+["Python","https://www.python.org","Code","python programming language docs download","The Python language: docs and downloads."],
+["W3Schools","https://www.w3schools.com","Code","html css javascript tutorials learn code","Beginner tutorials for web development."],
+["CodePen","https://codepen.io","Code","html css javascript playground demos","An online code editor for front-end experiments."],
+["Scratch","https://scratch.mit.edu","Code","coding kids games animation learn","Create stories, games and animations with block code."],
+["Gmail","https://mail.google.com","Tools","email mail inbox","Email from Google."],
+["Outlook","https://outlook.live.com","Tools","email mail calendar microsoft","Email and calendar from Microsoft."],
+["Proton Mail","https://proton.me/mail","Tools","email private encrypted secure mail","Encrypted, privacy-first email."],
+["Canva","https://www.canva.com","Tools","design graphics posters slides templates","Design graphics, posters and presentations."],
+["DeepL Translator","https://www.deepl.com/translator","Tools","translate translation language","Accurate translation between many languages."],
+["Speedtest","https://www.speedtest.net","Tools","internet speed test wifi","Test your internet connection speed."],
+["Claude","https://claude.ai","Tools","ai assistant chat write help","An AI assistant for writing, analysis and questions."],
+["Time and Date","https://www.timeanddate.com","Tools","time zones calendar clock countdown holidays","World clocks, calendars and time zone converters."],
+["Notion","https://www.notion.so","Tools","notes docs tasks wiki workspace","Notes, docs and tasks in one workspace."]
+];
+const $=id=>document.getElementById(id);
+const esc=s=>String(s??"").replace(/[&<>"]/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;"}[c]));
+const STOP=["the","a","an","of","for","to","in","and","is","how","what","why","do","does","i","my"];
+const tok=s=>s.toLowerCase().replace(/[^a-z0-9\s]/g," ").split(/\s+/).filter(w=>w&&!STOP.includes(w));
+const SITES=INDEX.map(([title,url,cat,kw,desc])=>({title,url,cat,desc,words:tok(title+" "+url.replace(/https?:\/\/(www\.)?/,"")+" "+kw+" "+desc),name:tok(title)}));
+const bare=u=>u.replace(/^https?:\/\/(www\.)?/,"").replace(/\/$/,"");
+const host=u=>{try{return new URL(u).hostname.replace(/^www\./,"")}catch(e){return bare(u)}};
+const crumb=u=>{try{const x=new URL(u);return x.origin.replace(/^https?:\/\/(www\.)?/,"https://")+(x.pathname.length>1?" › "+x.pathname.split("/").filter(Boolean).join(" › "):"")}catch(e){return u}};
+
+// ---------- local index ----------
+function local(q){
+  const ws=tok(q);if(!ws.length)return[];
+  return SITES.map(s=>{let sc=0,m=0;for(const w of ws){const n=s.words.filter(t=>t===w||(w.length>2&&t.startsWith(w))).length+(s.name.includes(w)?5:0);if(n)m++;sc+=n}return{s,sc:sc*m/ws.length}})
+    .filter(r=>r.sc>0).sort((a,b)=>b.sc-a.sc).slice(0,6).map(r=>r.s);
+}
+function address(q){
+  if(/^https?:\/\/\S+$/i.test(q))return q;
+  if(/^([a-z0-9-]+\.)+[a-z]{2,}(:\d+)?(\/\S*)?$/i.test(q))return "https://"+q;
+  return null;
+}
+function siteByName(q){const l=q.toLowerCase().replace(/[^a-z0-9]/g,"");return SITES.find(s=>s.title.toLowerCase().replace(/[^a-z0-9]/g,"")===l||host(s.url).split(".")[0]===l)}
+function calc(q){
+  const s=q.replace(/\s+/g,"").replace(/[x×]/g,"*").replace(/÷/g,"/").replace(/=$/,"");
+  if(!/^[\d.+\-*/()^]+$/.test(s)||!/\d[+\-*/^]/.test(s))return null;
+  let i=0;const p=()=>s[i];
+  const atom=()=>{if(p()==="-"){i++;return-atom()}if(p()==="("){i++;const v=add();if(p()!==")")throw 0;i++;return v}const st=i;while(/[\d.]/.test(p()||""))i++;const n=parseFloat(s.slice(st,i));if(isNaN(n))throw 0;return n};
+  const pow=()=>{const b=atom();if(p()==="^"){i++;return Math.pow(b,pow())}return b};
+  const mul=()=>{let v=pow();while(p()==="*"||p()==="/"){const o=s[i++],r=pow();v=o==="*"?v*r:v/r}return v};
+  const add=()=>{let v=mul();while(p()==="+"||p()==="-"){const o=s[i++],r=mul();v=o==="+"?v+r:v-r}return v};
+  try{const v=add();return i===s.length&&isFinite(v)?+v.toPrecision(12):null}catch(e){return null}
+}
+const bold=(text,q)=>{let out=esc(text);for(const w of tok(q).filter(w=>w.length>2))out=out.replace(new RegExp("\\b("+w.replace(/[^a-z0-9]/g,"")+"\\w*)","gi"),"<em>$1</em>");return out};
+
+// ---------- Spark AI (the page asks Claude) ----------
+let samplePromise=null,ctl=null;
+const getSample=()=>samplePromise||(samplePromise=(window.claude?.use?window.claude.use("sample"):Promise.resolve(null)).catch(()=>null));
+async function askSpark(q){
+  const sample=await getSample();if(!sample)return {off:true};
+  ctl?.abort();ctl=new AbortController();
+  const prompt=`You are the engine behind SolarSpark, a web search page. The user searched for:
+"${q}"
+
+Reply with only a JSON object in this shape:
+{"overview":"2-4 sentence direct answer or summary for the search, plain text, no markdown","results":[{"title":"page title","url":"https://...","snippet":"one or two sentences describing what that page offers for this search"}]}
+
+Give 6 to 8 results. Use only real, long-established websites and pages you are confident exist (official sites, Wikipedia articles, major references, well-known services). Prefer homepages or stable article URLs over deep links you are unsure of. If the search is about something current (news, scores, prices, weather), say in the overview that it may have changed and point to sources that track it live.`;
+  try{return await sample.json(prompt,{modelTier:"quick",signal:ctl.signal,cache:{gcTime:3600000}})}
+  catch(e){return {err:e.code}}
+}
+
+// ---------- search box (used on both views) ----------
+const ICON='<svg width="20" height="20" viewBox="0 0 24 24" aria-hidden="true"><circle cx="10.5" cy="10.5" r="6.5" fill="none" stroke="currentColor" stroke-width="2"/><path d="M15.5 15.5 21 21" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg>';
+function makeBox(el,id){
+  el.innerHTML=`<form role="search" autocomplete="off">${ICON}<input id="${id}" type="search" aria-label="Search SolarSpark" placeholder="Search SolarSpark or type a URL"><button class="clr" type="button" aria-label="Clear" hidden>×</button></form><ul class="sugg" role="listbox" hidden></ul>`;
+  const form=el.querySelector("form"),inp=el.querySelector("input"),clr=el.querySelector(".clr"),ul=el.querySelector(".sugg");let sel=-1;
+  const hide=()=>{ul.hidden=true;el.classList.remove("open");sel=-1};
+  const show=()=>{const q=inp.value.trim();clr.hidden=!q;if(!q)return hide();
+    const items=[...new Set([q,...local(q).map(s=>s.title.toLowerCase())])].slice(0,7);
+    ul.innerHTML=items.map(t=>`<li role="option" data-q="${esc(t)}">${ICON}<span>${esc(t)}</span>${siteByName(t)?`<small>${esc(host(siteByName(t).url))}</small>`:""}</li>`).join("");
+    ul.hidden=false;el.classList.add("open");
+    ul.querySelectorAll("li").forEach(li=>{li.onmousedown=e=>e.preventDefault();li.onclick=()=>{hide();search(li.dataset.q)}});};
+  inp.addEventListener("input",show);inp.addEventListener("focus",show);inp.addEventListener("blur",()=>setTimeout(hide,120));
+  inp.addEventListener("keydown",e=>{const lis=[...ul.querySelectorAll("li")];
+    if(!ul.hidden&&lis.length&&(e.key==="ArrowDown"||e.key==="ArrowUp")){e.preventDefault();sel=(sel+(e.key==="ArrowDown"?1:-1)+lis.length)%lis.length;lis.forEach((l,i)=>l.classList.toggle("on",i===sel));inp.value=lis[sel].dataset.q}
+    else if(e.key==="Escape")hide();});
+  clr.onclick=()=>{inp.value="";clr.hidden=true;inp.focus()};
+  form.addEventListener("submit",e=>{e.preventDefault();hide();search(inp.value)});
+  return inp;
+}
+const hInput=makeBox($("hbox"),"hq"),tInput=makeBox($("tbox"),"tq");
+
+// ---------- search ----------
+const STANDALONE=(()=>{try{return window.top===window}catch(e){return false}})();
+function openUrl(u){if(STANDALONE){location.replace(u);return true}try{return !!window.open(u,"_blank","noopener")}catch(e){return false}}
+if(STANDALONE)new MutationObserver(()=>document.querySelectorAll('a[target="_blank"]').forEach(a=>a.removeAttribute("target"))).observe(document.body,{childList:true,subtree:true});
+let runId=0;
+async function search(q,lucky=false){
+  q=q.trim();if(!q)return;
+  if(STANDALONE&&new URLSearchParams(location.search).get("q")!==q&&!address(q)&&!lucky){location.href="?q="+encodeURIComponent(q);return}
+  const id=++runId;
+  hInput.value=tInput.value=q;
+  $("homeview").hidden=true;$("resultsview").hidden=false;window.scrollTo(0,0);
+  const addr=address(q),named=siteByName(q),ans=calc(q),loc=local(q);
+  const jump=addr||(lucky?(named||loc[0])?.url:named?.url);
+  let opened=false;if(jump&&(addr||lucky||(STANDALONE&&named)))opened=openUrl(jump);if(opened&&STANDALONE)return;
+  const t0=performance.now();
+  const el=$("results");
+  const resHtml=(list,ai)=>list.map(r=>`<div class="res"><div class="src"><span class="fav">${esc((r.title||host(r.url))[0].toUpperCase())}</span><div><b>${esc(r.site||host(r.url))}${ai?`<span class="tag">Spark AI</span>`:""}</b><cite>${esc(crumb(r.url))}</cite></div></div><a class="t" href="${esc(r.url)}" target="_blank" rel="noopener">${esc(r.title)}</a><p>${bold(r.snippet||r.desc||"",q)}</p></div>`).join("");
+  const draw=(ov,ai)=>{
+    const all=[...(jump?[{title:named&&!addr?named.title:bare(jump),url:jump,desc:opened?"Opened in a new tab.":addr?"Go to this address.":named.desc}]:[]),...loc.filter(s=>s.url!==jump),...(ai||[]).filter(r=>r&&/^https?:\/\//.test(r.url)&&r.url!==jump&&!loc.some(s=>host(s.url)===host(r.url)))];
+    el.innerHTML=`<div class="stats">About ${all.length} results (${((performance.now()-t0)/1000).toFixed(2)} seconds)</div>`+
+      (ans!==null?`<div class="answer"><small>${esc(q)} =</small>${ans.toLocaleString()}</div>`:"")+
+      (ov||"")+all.map(r=>resHtml([r],!!ai&&ai.includes(r))).join("")+
+      (!all.length&&ans===null&&!ov?`<p class="none">Your search – <b>${esc(q)}</b> – did not match any documents.</p>`:"");
+    if(jump&&!opened&&(addr||lucky)){const a=el.querySelector(".res a.t");a&&a.focus()}
+  };
+  if(addr||ans!==null){draw("");return}
+  if(!window.claude){draw("");return}
+  draw(`<div class="overview"><h3><i></i>Spark Overview</h3><p class="thinking">Searching…</p></div>`);
+  const r=await askSpark(q);if(id!==runId)return;
+  let ov="";
+  if(r.off)ov="";
+  else if(r.err==="not_granted"||r.err==="sampling_disabled")ov=`<div class="overview"><h3><i></i>Spark Overview</h3><p class="note">Spark answers are turned off. Results below come from the SolarSpark index.</p></div>`;
+  else if(r.err&&r.err!=="cancelled")ov=`<div class="overview"><h3><i></i>Spark Overview</h3><p class="note">${r.err==="rate_limited"?"Too many searches at once. Wait a moment and search again.":"Couldn't get an answer this time. Search again to retry."}</p></div>`;
+  else if(r.overview)ov=`<div class="overview"><h3><i></i>Spark Overview</h3><p>${esc(r.overview)}</p><span class="note">AI-generated answer. Check important facts at the sources.</span></div>`;
+  draw(ov,Array.isArray(r.results)?r.results.map(x=>({title:String(x.title||""),url:String(x.url||""),snippet:String(x.snippet||"")})).filter(x=>x.title):null);
+}
+function home(){ctl?.abort();runId++;$("resultsview").hidden=true;$("homeview").hidden=false;hInput.value="";hInput.focus()}
+
+$("hsearch").onclick=()=>search(hInput.value);
+$("lucky").onclick=()=>search(hInput.value,true);
+$("home").onclick=home;
+document.addEventListener("keydown",e=>{if(e.key==="/"&&!/INPUT|TEXTAREA/.test(document.activeElement.tagName)){e.preventDefault();($("homeview").hidden?tInput:hInput).focus()}});
+{const q0=new URLSearchParams(location.search).get("q");if(q0)search(q0);else hInput.focus()}
+</script>
+</body></html>
