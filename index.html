@@ -272,13 +272,26 @@ async function search(q,lucky=false){
   let opened=false;if(jump&&(addr||lucky||(STANDALONE&&named)))opened=openUrl(jump);if(opened&&STANDALONE)return;
   const t0=performance.now();
   const el=$("results");
-  const resHtml=(list,ai)=>list.map(r=>`<div class="res"><div class="src"><span class="fav">${esc((r.title||host(r.url))[0].toUpperCase())}</span><div><b>${esc(r.site||host(r.url))}${ai?`<span class="tag">Spark AI</span>`:""}</b><cite>${esc(crumb(r.url))}</cite></div></div><a class="t" href="${esc(r.url)}" target="_blank" rel="noopener">${esc(r.title)}</a><p>${bold(r.snippet||r.desc||"",q)}</p></div>`).join("");
+  const resHtml=(list,ai)=>list.map(r=>`<div class="res"><div class="src"><span class="fav">${esc(host(r.url)[0].toUpperCase())}</span><div><b>${esc(r.site||host(r.url))}${ai?`<span class="tag">Spark AI</span>`:""}</b><cite>${esc(crumb(r.url))}</cite></div></div><a class="t" href="${esc(r.url)}" target="_blank" rel="noopener">${esc(r.title)}</a><p>${bold(r.snippet||r.desc||"",q)}</p></div>`).join("");
+  const enc=encodeURIComponent(q);
+  const more=[
+    {title:`${q} – Wikipedia`,url:`https://en.wikipedia.org/w/index.php?search=${enc}`,desc:`Look up "${q}" in the free encyclopedia.`},
+    {title:`${q} – YouTube`,url:`https://www.youtube.com/results?search_query=${enc}`,desc:`Watch videos about "${q}".`},
+    {title:`Meaning of "${q}" – Merriam-Webster`,url:`https://www.merriam-webster.com/dictionary/${enc}`,desc:`Definition, pronunciation and examples of "${q}".`},
+    {title:`${q} – Reddit`,url:`https://www.reddit.com/search/?q=${enc}`,desc:`See what people are saying about "${q}".`},
+    {title:`${q} – Images on Unsplash`,url:`https://unsplash.com/s/photos/${enc}`,desc:`Free photos of "${q}".`},
+    {title:`${q} – Amazon`,url:`https://www.amazon.com/s?k=${enc}`,desc:`Shop for "${q}".`},
+  ];
+  const greet=/^(hi+|hello+|hey+|hiya|yo|sup|howdy|hola|good (morning|afternoon|evening)|what'?s up)[!. ]*$/i.test(q);
   const draw=(ov,ai)=>{
     const all=[...(jump?[{title:named&&!addr?named.title:bare(jump),url:jump,desc:opened?"Opened in a new tab.":addr?"Go to this address.":named.desc}]:[]),...loc.filter(s=>s.url!==jump),...(ai||[]).filter(r=>r&&/^https?:\/\//.test(r.url)&&r.url!==jump&&!loc.some(s=>host(s.url)===host(r.url)))];
+    const extra=addr?[]:more.filter(m=>!all.some(r=>host(r.url)===host(m.url)));
+    all.push(...extra);
     el.innerHTML=`<div class="stats">About ${all.length} results (${((performance.now()-t0)/1000).toFixed(2)} seconds)</div>`+
       (ans!==null?`<div class="answer"><small>${esc(q)} =</small>${ans.toLocaleString()}</div>`:"")+
+      (greet?`<div class="answer"><small>SolarSpark says</small>Hey there! What do you want to find today?</div>`:"")+
       (ov||"")+all.map(r=>resHtml([r],!!ai&&ai.includes(r))).join("")+
-      (!all.length&&ans===null&&!ov?`<p class="none">Your search – <b>${esc(q)}</b> – did not match any documents.</p>`:"");
+      "";
     if(jump&&!opened&&(addr||lucky)){const a=el.querySelector(".res a.t");a&&a.focus()}
   };
   if(addr||ans!==null){draw("");return}
